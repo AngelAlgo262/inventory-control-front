@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  /* Declarr variable global para el color de acento */
   --color-brand: #00d2ff;
   --color-brand-hover: #00a8ff;
 }
 
-/* Configurar el comportamiento por defecto de Tailwind v4 para modo oscuro por clase */
 @variant dark (&:where(.dark, .dark *));
 
-/* Estilos globales rápidos para que el fondo cambie suave */
+/* Reset agresivo anti-scroll */
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100dvh;
+  /* overflow: hidden; Prohibido el scroll total */
+  position: fixed;  /* fixed para fijar el fondo en móviles */
+}
+
 body {
   transition: background-color 0.3s ease, color 0.3s ease;
-  margin: 0;
-  overflow-x: hidden;
-}
-/* Altura dinámica en móviles */
-.h-dynamic-screen {
-  height: 100dvh;
 }
