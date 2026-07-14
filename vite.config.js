@@ -13,7 +13,7 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'maskable-icon.png'],
       manifest: {
         name: 'Inventory Control System',
-        short_name: 'PapeControl',
+        short_name: 'InventoryControl',
         description: 'Sistema Inteligente de Control de Inventarios',
         theme_color: '#0d0f14',
         background_color: '#0d0f14',
