@@ -37,6 +37,15 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
+      },
+      /* Offline con Workbox*/
+      workbox: {
+        // extensiones de archivos debe cachear localmente
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Esto redirige cualquier ruta de navegación al index que ya está en caché
+        navigateFallback: 'index.html',
+        //Evita problemas si el usuario tiene una sesión muy vieja en caché
+        cleanupOutdatedCaches: true,
       }
     })
   ],
