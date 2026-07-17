@@ -7,7 +7,7 @@
         <div class="absolute top-5 right-5 z-50">
             <button @click="toggleTheme"
                 class="px-4 py-2 bg-slate-200 dark:bg-[#161920] border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-semibold shadow-md cursor-pointer hover:scale-105 active:scale-95 transition-all">
-                {{ isDark ? '☀️' : '🌙' }}
+                {{ isDarkMode ? '☀️' : '🌙' }}
             </button>
         </div>
 
@@ -97,12 +97,12 @@ const form = ref({
 })
 
 // Estado reactivo para el tema
-const isDark = ref(true)
+const isDarkMode = ref(true)
 
 // Función para cambiar de tema
 const toggleTheme = () => {
-    isDark.value = !isDark.value
-    if (isDark.value) {
+    isDarkMode.value = !isDarkMode.value
+    if (isDarkMode.value) {
         document.documentElement.classList.add('dark')
         localStorage.setItem('theme', 'dark')
     } else {
@@ -124,10 +124,10 @@ const capturarPrompt = (e) => {
 onMounted(() => {
     const savedTheme = localStorage.getItem('theme')
     if (savedTheme === 'light') {
-        isDark.value = false
+        isDarkMode.value = false
         document.documentElement.classList.remove('dark')
     } else {
-        isDark.value = true
+        isDarkMode.value = true
         document.documentElement.classList.add('dark')
     }
 
