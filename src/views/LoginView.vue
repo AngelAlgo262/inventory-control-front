@@ -152,7 +152,7 @@ async function instalarPWA() {
 }
 
 const handleLogin = async () => {
-    const success = await authStore.login(form.value)
+    const success = await authStore.login(form.value) //llama al store y le manda la data del formulario
     if (success) {
         // Si las credenciales pasan, el router te avienta al panel de control
         router.push('/dashboard')

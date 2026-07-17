@@ -1,19 +1,40 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import DashboardLayout from '../layouts/DashboardLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ScannerView from '../views/ScannerView.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const routes = [
   {
-    path: '/',
+    path: '/login',
     name: 'login',
-    component: LoginView,
-    meta: { title: 'Login' }
+    component: LoginView
   },
   {
     path: '/dashboard',
-    name: 'dashboard',
-    component: DashboardView,
-    meta: { title: 'Panel de Control' }
+    component: DashboardLayout, // El layout envuelve a todos los de abajo
+    children: [
+      {
+        path: '', // Se carga por defecto al entrar a /dashboard
+        name: 'dashboard',
+        component: DashboardView
+      },
+      {
+        path: 'scanner',
+        name: 'scanner',
+        component: ScannerView
+      },
+      {
+        path: 'perfil',
+        name: 'profile',
+        component: ProfileView
+      }
+    ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/login'
   }
 ]
 
