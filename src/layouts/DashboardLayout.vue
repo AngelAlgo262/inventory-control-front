@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useCustomConfig } from '../stores/customConfig'
@@ -21,9 +21,20 @@ const authStore = useAuthStore()
 const configStore = useCustomConfig()
 
 // Estados de interfaz
-const isSidebarOpen = ref(false) // Cerrado por defecto en móviles
+const isSidebarOpen = ref(false)
 const isUserMenuOpen = ref(false)
 const isDarkMode = ref(true)
+
+// 🎯 Referencia al contenedor del menú
+const menuRef = ref(null)
+
+// Función para cerrar el menú si se hace click fuera de él
+const closeMenuGlobal = (event) => {
+  // Si el menú está abierto y el elemento clickeado NO está dentro de nuestro contenedor, lo cerramos
+  if (isUserMenuOpen.value && menuRef.value && !menuRef.value.contains(event.target)) {
+    isUserMenuOpen.value = false
+  }
+}
 
 // Control de Tema Claro / Oscuro (Sincronizado con localStorage)
 const toggleTheme = () => {
@@ -38,6 +49,8 @@ const toggleTheme = () => {
 }
 
 onMounted(() => {
+  document.addEventListener('click', closeMenuGlobal)
+
   // Recuperar preferencia de tema
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme === 'light') {
@@ -47,6 +60,10 @@ onMounted(() => {
     isDarkMode.value = true
     document.documentElement.classList.add('dark')
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeMenuGlobal)
 })
 
 const handleLogout = () => {
@@ -63,10 +80,6 @@ const handleLogout = () => {
     <!-- OVERLAY PARA MÓVIL -->
     <div v-if="isSidebarOpen" @click="isSidebarOpen = false"
       class="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden"></div>
-
-    <!-- Al hacer clic en cualquier lado, el menú de usuario se cierra -->
-    <div v-if="isUserMenuOpen" @click="isUserMenuOpen = false" class="fixed inset-0 z-30 bg-transparent cursor-default">
-    </div>
 
     <!-- SIDEBAR RESPONSIVO: bg-slate-200 para claro / dark:bg-[#11141d] para oscuro -->
     <aside :class="[
@@ -138,7 +151,7 @@ const handleLogout = () => {
         </div>
 
         <!-- Menú de Usuario -->
-        <div class="relative">
+        <div class="relative" ref="menuRef">
 
           <!-- BOTÓN DEL PERFIL -->
           <button @click="isUserMenuOpen = !isUserMenuOpen"
@@ -150,7 +163,7 @@ const handleLogout = () => {
             <span class="hidden md:inline uppercase font-bold">Angel Ocampo</span>
           </button>
 
-          <!-- DROPDOWN MENÚ (Con z-30 para quedar por encima de la capa invisible) -->
+          <!-- DROPDOWN MENÚ -->
           <div v-if="isUserMenuOpen"
             class="absolute right-0 mt-2 w-56 bg-white dark:bg-[#11141d] border border-slate-200 dark:border-cyan-500/30 rounded shadow-2xl py-2 z-30 font-mono text-xs text-slate-800 dark:text-gray-300">
             <div
