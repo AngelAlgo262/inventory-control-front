@@ -107,7 +107,7 @@ const chartOptions = {
     <div class="flex items-center justify-between border-b border-gray-800/60 pb-3">
       <div class="flex items-center gap-2">
         <span class="text-xs text-cyan-400">🔥</span>
-        <h2 class="text-sm font-bold tracking-wider text-gray-300">TOP_VENTAS_SEMANAL_POR_DIAS</h2>
+        <h2 class="text-sm font-bold tracking-wider text-gray-300">TOP_VENTA_SEMANAL</h2>
       </div>
       <span class="text-[10px] bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded font-mono">
         RENDIMIENTO

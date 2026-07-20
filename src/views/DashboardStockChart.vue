@@ -86,7 +86,7 @@ const chartOptions = {
     <div class="flex items-center justify-between border-b border-gray-800/60 pb-3">
       <div class="flex items-center gap-2">
         <span class="text-xs text-red-400">⚠️</span>
-        <h2 class="text-sm font-bold tracking-wider text-gray-300">ALERTAS_DE_REABASTECIMIENTO_INVENTARIO</h2>
+        <h2 class="text-sm font-bold tracking-wider text-gray-300">ALERTAS_DE_INVENTARIO</h2>
       </div>
       <span class="text-[10px] bg-red-950/40 text-red-400 border border-red-500/30 px-2 py-0.5 rounded font-mono">
         CRÍTICO
