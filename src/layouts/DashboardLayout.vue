@@ -3,18 +3,6 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useCustomConfig } from '../stores/customConfig'
-// Importar iconos
-import {
-  LayoutDashboard,
-  Camera,
-  User,
-  Menu,
-  X,
-  LogOut,
-  Sun,
-  Moon,
-  ShieldCheck
-} from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -25,12 +13,11 @@ const isSidebarOpen = ref(false)
 const isUserMenuOpen = ref(false)
 const isDarkMode = ref(true)
 
-// 🎯 Referencia al contenedor del menú
+// Referencia al contenedor del menú
 const menuRef = ref(null)
 
 // Función para cerrar el menú si se hace click fuera de él
 const closeMenuGlobal = (event) => {
-  // Si el menú está abierto y el elemento clickeado NO está dentro de nuestro contenedor, lo cerramos
   if (isUserMenuOpen.value && menuRef.value && !menuRef.value.contains(event.target)) {
     isUserMenuOpen.value = false
   }
@@ -73,7 +60,7 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <!-- CONTENEDOR PRINCIPAL: bg-slate-100 para modo claro / dark:bg-[#0d0f14] para oscuro -->
+  <!-- CONTENEDOR PRINCIPAL -->
   <div
     class="min-h-screen bg-slate-100 dark:bg-[#0d0f14] text-slate-800 dark:text-gray-300 font-mono flex overflow-hidden transition-colors duration-300">
 
@@ -81,7 +68,7 @@ const handleLogout = () => {
     <div v-if="isSidebarOpen" @click="isSidebarOpen = false"
       class="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden"></div>
 
-    <!-- SIDEBAR RESPONSIVO: bg-slate-200 para claro / dark:bg-[#11141d] para oscuro -->
+    <!-- SIDEBAR RESPONSIVO -->
     <aside :class="[
       isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
       'fixed lg:static inset-y-0 left-0 w-64 bg-slate-200 dark:bg-[#11141d] border-r border-slate-300 dark:border-cyan-500/20 transition-all duration-300 flex flex-col z-40'
@@ -90,23 +77,27 @@ const handleLogout = () => {
       <div class="h-16 flex items-center px-4 border-b border-slate-300 dark:border-cyan-500/10 justify-between">
         <span
           class="text-xs font-bold tracking-widest text-slate-800 dark:text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]">
-          INVENTORY.CTRL
+          {{configStore.nombreNegocio}}.{{configStore.numSucursal || '001'}}
         </span>
         <button @click="isSidebarOpen = false"
           class="lg:hidden text-slate-600 dark:text-cyan-400 hover:text-cyan-300 cursor-pointer p-1 rounded bg-slate-300/50 dark:bg-cyan-950/30 border border-slate-400 dark:border-cyan-500/20">
+          <!-- Icono Globalizado -->
           <X class="w-4 h-4" />
         </button>
       </div>
 
-      <!-- Links de Navegación con soporte a modo claro -->
+      <!-- Links de Navegación -->
       <nav class="flex-1 p-3 space-y-1">
+        
+        <!-- 🎯 DASHBOARD: Cambiado a exact-active-class para matar el bug del estado activo permanente -->
         <router-link to="/dashboard" @click="isSidebarOpen = false"
-          active-class="bg-slate-300/80 dark:bg-cyan-950/30 border-slate-400 dark:border-cyan-500/50 text-slate-900 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
+          exact-active-class="bg-slate-300/80 dark:bg-cyan-950/30 border-slate-400 dark:border-cyan-500/50 text-slate-900 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
           class="flex items-center space-x-3 px-3 py-2.5 rounded-md border border-transparent hover:bg-slate-300/40 dark:hover:bg-gray-800/40 transition-all text-xs tracking-wider">
           <LayoutDashboard class="w-4.5 h-4.5 stroke-[1.5]" />
           <span>DASHBOARD</span>
         </router-link>
 
+        <!-- ESCANER -->
         <router-link to="/dashboard/scanner" @click="isSidebarOpen = false"
           active-class="bg-slate-300/80 dark:bg-cyan-950/30 border-slate-400 dark:border-cyan-500/50 text-slate-900 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
           class="flex items-center space-x-3 px-3 py-2.5 rounded-md border border-transparent hover:bg-slate-300/40 dark:hover:bg-gray-800/40 transition-all text-xs tracking-wider">
@@ -114,6 +105,7 @@ const handleLogout = () => {
           <span>ESCANER_CAM</span>
         </router-link>
 
+        <!-- CONFIG USER -->
         <router-link to="/dashboard/perfil" @click="isSidebarOpen = false"
           active-class="bg-slate-300/80 dark:bg-cyan-950/30 border-slate-400 dark:border-cyan-500/50 text-slate-900 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
           class="flex items-center space-x-3 px-3 py-2.5 rounded-md border border-transparent hover:bg-slate-300/40 dark:hover:bg-gray-800/40 transition-all text-xs tracking-wider">
@@ -133,7 +125,7 @@ const handleLogout = () => {
     <!-- ÁREA DE CONTENIDO PRINCIPAL -->
     <div class="flex-1 flex flex-col overflow-hidden w-full">
 
-      <!-- NAVBAR SUPERIOR: bg-white para claro / dark:bg-[#11141d]/80 para oscuro -->
+      <!-- NAVBAR SUPERIOR -->
       <header
         class="h-16 bg-white dark:bg-[#11141d]/80 backdrop-blur border-b border-slate-200 dark:border-cyan-500/10 flex items-center justify-between px-4 lg:px-6 z-20 transition-colors duration-300">
 
@@ -160,7 +152,7 @@ const handleLogout = () => {
               class="bg-slate-100 dark:bg-cyan-950 text-slate-600 dark:text-cyan-400 p-1.5 rounded-full border border-slate-300 dark:border-cyan-500/30">
               <User class="w-3.5 h-3.5" />
             </div>
-            <span class="hidden md:inline uppercase font-bold">Angel Ocampo</span>
+            <span class="hidden md:inline uppercase font-bold">{{configStore.nombreUser || 'Angel Ocampo'}}</span>
           </button>
 
           <!-- DROPDOWN MENÚ -->
@@ -168,7 +160,7 @@ const handleLogout = () => {
             class="absolute right-0 mt-2 w-56 bg-white dark:bg-[#11141d] border border-slate-200 dark:border-cyan-500/30 rounded shadow-2xl py-2 z-30 font-mono text-xs text-slate-800 dark:text-gray-300">
             <div
               class="px-4 py-2 border-b border-slate-100 dark:border-cyan-500/10 text-slate-400 dark:text-gray-500 text-[9px] tracking-widest">
-              SISTEMA_ROL: SUPERVISOR
+              SISTEMA_ROL: {{authStore.user?.role || 'Root'}}
             </div>
 
             <!-- ENLACE AL PERFIL -->
@@ -203,7 +195,7 @@ const handleLogout = () => {
         </div>
       </header>
 
-      <!-- CONTENIDO DINÁMICO: bg-slate-50 para claro / dark:bg-[#0d0f14] para oscuro -->
+      <!-- CONTENIDO DINÁMICO -->
       <main
         class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 dark:bg-[#0d0f14] p-4 lg:p-6 transition-colors duration-300">
         <router-view />

@@ -1,3 +1,17 @@
+<script setup>
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import { useCustomConfig } from '../stores/customConfig'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const configStore = useCustomConfig()
+
+const salir = () => {
+  if (authStore.logout) authStore.logout()
+  router.push('/')
+}
+</script>
 <template>
   <!-- Eliminamos el min-h-screen y el fondo oscuro fijo. Usamos flex normal para centrar la tarjeta -->
   <div class="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] font-sans">
@@ -11,7 +25,7 @@
       
       <!-- TEXTO: text-slate-600 en claro, text-slate-400 en oscuro -->
       <p class="text-slate-600 dark:text-slate-400 mb-6 font-mono text-sm">
-        Bienvenido al núcleo del sistema, Diablo.
+        Bienvenido al núcleo del sistema, {{configStore.nombreUser}}.
       </p>
       
       <button 
@@ -24,16 +38,3 @@
 
   </div>
 </template>
-
-<script setup>
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const salir = () => {
-  if (authStore.logout) authStore.logout()
-  router.push('/')
-}
-</script>

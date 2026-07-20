@@ -2,36 +2,45 @@ import { defineStore } from 'pinia'
 
 export const useCustomConfig = defineStore('customConfig', {
   state: () => {
-    // Intentamos levantar la configuración guardada en el disco del navegador
-    const datosGuardados = localStorage.getItem('inventory_core_config')
-    
+    // Parseamos una sola vez al inicio
+    const rawData = localStorage.getItem('inventory_core_config')
+    const datos = rawData ? JSON.parse(rawData) : null
+
     return {
-      // Si hay datos guardados, los parseamos; si no, dejamos el default cyberpunk
-      nombreNegocio: datosGuardados ? JSON.parse(datosGuardados).nombreNegocio : 'INVENTORY',
-      moduloActual: datosGuardados ? JSON.parse(datosGuardados).moduloActual : 'CONTROL',
-      slogan: datosGuardados ? JSON.parse(datosGuardados).slogan : 'Acceso al Núcleo del Sistema',
-      
-      // Dejamos estas listas para los inputs del formulario de personalización
-      rfc: datosGuardados ? JSON.parse(datosGuardados).rfc : '',
-      direccion: datosGuardados ? JSON.parse(datosGuardados).direccion : '',
-      telefono: datosGuardados ? JSON.parse(datosGuardados).telefono : ''
+      // Si hay datos guardados los cargamos, si no, los defaults estéticos
+      nombreUser: datos?.nombreUser || 'Demo',
+      userRol: datos?.userRol || 'Invitado',
+      emailUser: datos?.emailUser || 'demo@ic.com',
+      nombreNegocio: datos?.nombreNegocio || 'INVENTORY',
+      nomSucursal: datos?.nomSucursal || 'CONTROL',
+      slogan: datos?.slogan || 'Acceso al Núcleo del Sistema',
+      rfc: datos?.rfc || '',
+      direccion: datos?.direccion || '',
+      telefono: datos?.telefono || ''
     }
   },
 
   actions: {
-    // Acción para actualizar la configuración desde el formulario
-    guardarConfiguracion(nuevaConfig) {
-      this.nombreNegocio = nuevaConfig.nombreNegocio.toUpperCase() // Forzamos mayúsculas para el estilo
-      this.moduloActual = nuevaConfig.moduloActual.toUpperCase()
-      this.slogan = nuevaConfig.slogan
-      this.rfc = nuevaConfig.rfc
-      this.direccion = nuevaConfig.direccion
-      this.telefono = nuevaConfig.telefono
+    // ESTA ACCIÓN SE LLAMA JUSTO EN EL LOGIN exitoso
+    setCustomConfig(dataBackend) {
+      // Mapeamos lo que te mande tu API Web
+      this.nombreUser = dataBackend.nombreUser || 'Demo',
+      this.userRol = dataBackend.userRol || 'Invitado',
+      this.emailUser = dataBackend.emailUser || 'demo@ic.com'
+      this.nombreNegocio = (dataBackend.nombreNegocio || 'INVENTORY').toUpperCase()
+      this.nomSucursal = (dataBackend.nomSucursal || 'CONTROL').toUpperCase()
+      this.slogan = dataBackend.slogan || 'Acceso al Núcleo del Sistema'
+      this.rfc = dataBackend.rfc || ''
+      this.direccion = dataBackend.direccion || ''
+      this.telefono = dataBackend.telefono || ''
 
-      // Guardamos en el localStorage para que persista al recargar o compilar
+      // Guardamos la sesión del negocio en el disco local
       localStorage.setItem('inventory_core_config', JSON.stringify({
+        nombreUser: this.nombreUser,
+        userRol: this.userRol,
+        emailUser: this.emailUser,
         nombreNegocio: this.nombreNegocio,
-        moduloActual: this.moduloActual,
+        nomSucursal: this.nomSucursal,
         slogan: this.slogan,
         rfc: this.rfc,
         direccion: this.direccion,
@@ -39,10 +48,15 @@ export const useCustomConfig = defineStore('customConfig', {
       }))
     },
 
-    // Por si el usuario la cajetea y quiere regresar al diseño original
-    restablecerDefaults() {
+    // Cuando el usuario actualiza manualmente el perfil desde el formulario
+    guardarConfiguracion(nuevaConfig) {
+      this.setCustomConfig(nuevaConfig)
+    },
+
+    // Seguridad: Si cierran sesión, limpiamos el estado del negocio
+    limpiarConfig() {
       this.nombreNegocio = 'INVENTORY'
-      this.moduloActual = 'CONTROL'
+      this.nomSucursal = 'CONTROL'
       this.slogan = 'Acceso al Núcleo del Sistema'
       this.rfc = ''
       this.direccion = ''
