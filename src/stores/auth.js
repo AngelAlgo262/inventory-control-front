@@ -1,95 +1,80 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import apiClient from '../api/axios'
 import { useCustomConfig } from './customConfig'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: null,
+    user: JSON.parse(localStorage.getItem('auth_user')) || null,
     token: localStorage.getItem('auth_token') || null,
     loading: false,
     error: null
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.token
+    isAuthenticated: (state) => !!state.token,
+    userRoles: (state) => state.user?.roles || [],
+    userPermissions: (state) => state.user?.permissions || [],
+    hasPermission: (state) => (permission) => {
+      return state.user?.permissions?.includes(permission) ?? false
+    }
   },
 
   actions: {
     async login(credentials) {
       this.loading = true
       this.error = null
-      
-      // Instanciamos el store aquí adentro, justo cuando se ejecuta la acción
       const configStore = useCustomConfig()
 
       try {
-        // --- CÓDIGO REAL PARA CUANDO EL BACKEND ESTÉ VIVO ---
-        /*
-        const response = await axios.post(`${API_URL}/login`, credentials)
+        const response = await apiClient.post('/login', credentials)
         const { token, user, negocio } = response.data
-        
+
+        // Guardar en estado de Pinia
         this.token = token
         this.user = user
+
+        // Persistir con las llaves correctas en localStorage
         localStorage.setItem('auth_token', token)
-        
-        // Sincronizamos los datos del negocio reales que vengan del backend
-        configStore.setEstrategiaConfig({
-          nombreNegocio: negocio.nombre,
+        localStorage.setItem('auth_user', JSON.stringify(user))
+
+        configStore.setCustomConfig({
+          nombreNegocio: negocio?.nombre || 'Ciberlyn',
           moduloActual: 'CTRL',
-          slogan: negocio.slogan,
-          rfc: negocio.rfc,
-          direccion: negocio.direccion,
-          telefono: negocio.telefono
+          slogan: negocio?.slogan || 'El núcleo de tus herramientas de control',
+          rfc: negocio?.rfc || 'XAXX010101000',
+          direccion: negocio?.direccion || 'Xochimilco, CDMX',
+          telefono: negocio?.telefono || '5512345678'
         })
+
         return true
-        */
-        // ---------------------------------------------------
-
-        // --- SIMULACIÓN DE LOGIN PARA DESPLIEGUE EN GH-PAGES ---
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Simula lag de red
-        
-        if (credentials.email === 'demo@ic.com' && credentials.password === 'Demo.123') {
-          const fakeToken = 'cyber_jwt_token_xyz123'
-          this.token = fakeToken
-          this.user = { name: 'Demo', role: 'Root' }
-          localStorage.setItem('auth_token', fakeToken)
-          
-          // Inyectamos la data simulada para que rule en GH Pages al 100%
-          configStore.setCustomConfig({
-            nombreNegocio: 'Ciberlyn',
-            moduloActual: 'INVENTORY',
-            slogan: 'El núcleo de tus herramientas de control',
-            rfc: 'XAXX010101000',
-            direccion: 'Xochimilco, CDMX',
-            telefono: '5512345678'
-          })
-          
-          return true
-        } else {
-          throw new Error('Credenciales inválidas en el núcleo.')
-        }
-        // --------------------------------------------------------
-
       } catch (err) {
-        this.error = err.message || 'Error de conexión'
+        if (err.response && err.response.data && err.response.data.message) {
+          this.error = err.response.data.message
+        } else {
+          this.error = err.message || 'Error de conexión con el servidor'
+        }
         return false
       } finally {
         this.loading = false
       }
     },
 
-    logout() {
-      // También traemos el store aquí para limpiar todo el entorno al salir
+    async logout() {
       const configStore = useCustomConfig()
-      
-      this.token = null
-      this.user = null
-      localStorage.removeItem('auth_token')
-      
-      // Desmantelamos la configuración local para que no quede data expuesta
-      configStore.limpiarConfig()
+
+      try {
+        // 1. Primero llamamos a la API MIENTRAS el token sigue en localStorage
+        await apiClient.post('/logout')
+      } catch (err) {
+        console.warn('Error en logout API:', err.response?.data || err.message)
+      } finally {
+        // 2. UNA VEZ HECHO EL LOGOUT, borramos el estado local
+        this.token = null
+        this.user = null
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_user')
+        configStore.limpiarConfig()
+      }
     }
   }
 })

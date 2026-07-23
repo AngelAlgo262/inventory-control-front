@@ -1,3 +1,83 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import { useCustomConfig } from '../stores/customConfig'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const configStore = useCustomConfig()
+
+const form = ref({
+    email: '',
+    password: ''
+})
+
+// Estado reactivo para el tema
+const isDarkMode = ref(true)
+
+// Función para cambiar de tema
+const toggleTheme = () => {
+    isDarkMode.value = !isDarkMode.value
+    if (isDarkMode.value) {
+        document.documentElement.classList.add('dark')
+        localStorage.setItem('theme', 'dark')
+    } else {
+        document.documentElement.classList.remove('dark')
+        localStorage.setItem('theme', 'light')
+    }
+}
+
+// Lógica de Instalación de la PWA
+const mostrarInstalarBtn = ref(false)
+let deferredPrompt = null
+
+const capturarPrompt = (e) => {
+    e.preventDefault()
+    deferredPrompt = e
+    mostrarInstalarBtn.value = true
+}
+
+onMounted(() => {
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme === 'light') {
+        isDarkMode.value = false
+        document.documentElement.classList.remove('dark')
+    } else {
+        isDarkMode.value = true
+        document.documentElement.classList.add('dark')
+    }
+
+    // Escuchar el evento nativo del navegador
+    window.addEventListener('beforeinstallprompt', capturarPrompt)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('beforeinstallprompt', capturarPrompt)
+})
+
+async function instalarPWA() {
+    if (!deferredPrompt) return
+
+    deferredPrompt.prompt()
+
+    const { outcome } = await deferredPrompt.userChoice
+    console.log(`El usuario definió el destino: ${outcome}`)
+
+    deferredPrompt = null
+    mostrarInstalarBtn.value = false
+}
+
+const handleLogin = async () => {
+    const success = await authStore.login(form.value) //llama al store y le manda la data del formulario
+    if (success) {
+        // Si las credenciales pasan, el router te avienta al panel de control
+        router.push('/dashboard')
+    } else {
+        alert(authStore.error)
+    }
+}
+</script>
 <template>
     <!-- Clases dinámicas para el modo claro/oscuro -->
     <div
@@ -80,84 +160,3 @@
         </div>
     </div>
 </template>
-
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import { useCustomConfig } from '../stores/customConfig'
-
-const router = useRouter()
-const authStore = useAuthStore()
-const configStore = useCustomConfig()
-
-const form = ref({
-    email: '',
-    password: ''
-})
-
-// Estado reactivo para el tema
-const isDarkMode = ref(true)
-
-// Función para cambiar de tema
-const toggleTheme = () => {
-    isDarkMode.value = !isDarkMode.value
-    if (isDarkMode.value) {
-        document.documentElement.classList.add('dark')
-        localStorage.setItem('theme', 'dark')
-    } else {
-        document.documentElement.classList.remove('dark')
-        localStorage.setItem('theme', 'light')
-    }
-}
-
-// Lógica de Instalación de la PWA
-const mostrarInstalarBtn = ref(false)
-let deferredPrompt = null
-
-const capturarPrompt = (e) => {
-    e.preventDefault()
-    deferredPrompt = e
-    mostrarInstalarBtn.value = true
-}
-
-onMounted(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'light') {
-        isDarkMode.value = false
-        document.documentElement.classList.remove('dark')
-    } else {
-        isDarkMode.value = true
-        document.documentElement.classList.add('dark')
-    }
-
-    // Escuchar el evento nativo del navegador
-    window.addEventListener('beforeinstallprompt', capturarPrompt)
-})
-
-onUnmounted(() => {
-    window.removeEventListener('beforeinstallprompt', capturarPrompt)
-})
-
-async function instalarPWA() {
-    if (!deferredPrompt) return
-
-    deferredPrompt.prompt()
-
-    const { outcome } = await deferredPrompt.userChoice
-    console.log(`El usuario definió el destino: ${outcome}`)
-
-    deferredPrompt = null
-    mostrarInstalarBtn.value = false
-}
-
-const handleLogin = async () => {
-    const success = await authStore.login(form.value) //llama al store y le manda la data del formulario
-    if (success) {
-        // Si las credenciales pasan, el router te avienta al panel de control
-        router.push('/dashboard')
-    } else {
-        alert(authStore.error)
-    }
-}
-</script>

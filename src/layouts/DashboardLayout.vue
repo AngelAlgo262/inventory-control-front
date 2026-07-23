@@ -89,7 +89,7 @@ const handleLogout = () => {
       <!-- Links de Navegación -->
       <nav class="flex-1 p-3 space-y-1">
         
-        <!-- 🎯 DASHBOARD: Cambiado a exact-active-class para matar el bug del estado activo permanente -->
+        <!-- DASHBOARD: Cambiado a exact-active-class para matar el bug del estado activo permanente -->
         <router-link to="/dashboard" @click="isSidebarOpen = false"
           exact-active-class="bg-slate-300/80 dark:bg-cyan-950/30 border-slate-400 dark:border-cyan-500/50 text-slate-900 dark:text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.05)]"
           class="flex items-center space-x-3 px-3 py-2.5 rounded-md border border-transparent hover:bg-slate-300/40 dark:hover:bg-gray-800/40 transition-all text-xs tracking-wider">
